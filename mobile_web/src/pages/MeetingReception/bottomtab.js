@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom'
 import { TabBar } from 'antd-mobile';
-import MyEntrance from './myEntrance';
+import MyMeeting from './myEntrance';
 import { observer } from 'mobx-react';
-import store from './store';
 import st from './entrance.css';
-import ApplyCom from './apply';
-
+import Order from './meeting_reception';
 
 const tabs = [
   { title: '申请' },
@@ -16,7 +14,7 @@ const tabs = [
 
 
 @observer
-class Entrance extends Component {
+class Meeting extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -79,7 +77,7 @@ class Entrance extends Component {
             }}
             data-seed="logId"
           >
-            <ApplyCom />
+            <Order />
           </TabBar.Item>
           <TabBar.Item
             icon={
@@ -100,7 +98,7 @@ class Entrance extends Component {
             }}
             data-seed="logId1"
           >
-            <MyEntrance />
+            <MyMeeting />
           </TabBar.Item>
         </TabBar>
       </div>
@@ -108,4 +106,4 @@ class Entrance extends Component {
   }
 }
 
-export default withRouter(Entrance);
+export default withRouter(Meeting);

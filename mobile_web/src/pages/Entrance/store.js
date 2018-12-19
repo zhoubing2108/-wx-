@@ -2,6 +2,7 @@ import { observable } from 'mobx';
 import moment from 'moment';
 
 class Store {
+  @observable data = [];
   @observable RadioValue = 0;
   @observable deadline = new Date(Date.now());
   @observable listParams = {

@@ -6,7 +6,7 @@ import { observer } from 'mobx-react';
 import store from './store';
 import st from './entrance.css';
 import ApplyCom from './apply';
-
+import Order from './order';
 
 const tabs = [
   { title: '申请' },
@@ -79,7 +79,7 @@ class Entrance extends Component {
             }}
             data-seed="logId"
           >
-            <ApplyCom />
+            <Order />
           </TabBar.Item>
           <TabBar.Item
             icon={

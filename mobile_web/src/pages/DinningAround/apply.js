@@ -49,7 +49,7 @@ class Apply extends Component {
             access.map((v, i) => {
               if (i < 2) {
                 return (
-                  <FlexItem key={i}>
+                  <FlexItem>
                     <AgreeItem style={{ fontSize: '10px' }} name='test' value={v} onChange={e => console.log('checkbox', e)}>{v}</AgreeItem>
                   </FlexItem>)
               }
@@ -60,7 +60,7 @@ class Apply extends Component {
             access.map((v, i) => {
               if (i > 1 && i < 3) {
                 return (
-                  <FlexItem key={i}>
+                  <FlexItem >
                     <AgreeItem style={{ fontSize: '10px' }} name='test' onChange={e => console.log('checkbox', e)}>{v}</AgreeItem>
                   </FlexItem>)
               }
@@ -73,7 +73,7 @@ class Apply extends Component {
             access.map((v, i) => {
               if (i > 2 && i < 7) {
                 return (
-                  <FlexItem key={i}>
+                  <FlexItem>
                     <AgreeItem name='test' onChange={e => console.log('checkbox', e)}>{v}</AgreeItem>
                   </FlexItem>)
               }

@@ -6,11 +6,14 @@ import request from '../../helpers/request';
 import {observer} from 'mobx-react';
 const Item = List.Item;
 
-
+// const tabs = [
+//   { title: '当前申请' },
+//   { title: '历史申请' },
+//   { title: '审核记录'}
+// ];
 const tabs = [
-  { title: '申请列表' },
-  { title: '审批记录' },
-];
+  {title:'所有列表'}
+]
 const _status = {
   '-1': '不通过',
   '0': '保存中',
@@ -56,11 +59,15 @@ var data = [
     admin_id: 4
   },
 ];
-const NUM_ROWS = 1;
+const NUM_ROWS = 10;
 let pageIndex = 0;
 
 function genData(pIndex = 0) {
   const dataBlob = {};
+  console.log('dataBlob',dataBlob);
+  console.log(store.total);
+
+  let NUM_ROWS = store.total === 0 ? 1:10;
   for (let i = 0; i < NUM_ROWS; i++) {
     const ii = (pIndex * NUM_ROWS) + i;
     dataBlob[`${ii}`] = `row - ${ii}`;
@@ -70,52 +77,34 @@ function genData(pIndex = 0) {
 
 @observer
 class MyEntrance extends Component {
-  constructor(props) {
-    super(props);
-    const dataSource = new ListView.DataSource({
-      rowHasChanged: (row1, row2) => row1 !== row2,
-    });
-
-    this.state = {
-      dataSource,
-      isLoading: true,
-    };
-  }
-
-
   componentDidMount() {
-    // setTimeout(() => {
-    //   this.rData = genData();
-    //   this.setState({
-    //     dataSource: this.state.dataSource.cloneWithRows(this.rData),
-    //     isLoading: false,
-    //   });
-    // }, 600);
     this.fetchList();
   }
-
   fetchList = (page, size = 10) => {
-    let { time_begin, time_end, status, username, access, department } = store.listParams;
+    let { time_begin, time_end, status, username, department } = store.listParams;
     console.log(time_begin, time_end);
-    page = page?page:1
+    page = page?page:1;
+    status = 0;
+    let meal_type = '全部';
     request({
-      // url: '/api/v1/meeting/place/list',
-      url: '/api/v1/access/list',
+      url: '/api/v1/official/list',
       method: 'GET',
       data: {
         time_begin:time_begin.format('YYYY-MM-DD'),
         time_end: time_end.format('YYYY-MM-DD'),
         status,
         username,
-        access,
         department,
         page: page ,
-        size
-      },   
+        size,
+        meal_type
+
+      },
       beforeSend: (xml) => {
-        xml.setRequestHeader('token', 'bf2719753b77e79b15da510b59a4f25c')
+        xml.setRequestHeader('token', '7d377662cb83bcf56cd1ab775f8c0dba')
       },
       success: (res) => {
+        console.log('响应的数据',res);
         data = res.data;
         store.data = res.data;
         store.total = res.total
@@ -138,47 +127,52 @@ class MyEntrance extends Component {
     //   });
     // }, 1000);
   }
+  whichTab = (e) => {
+    this.secWhichTab(e);
+  }
+  secWhichTab = (e) => {
+    let { time_begin, time_end, status, username, department } = store.listParams;
+    // console.log('secWhich',e);
+    // let status;
+    if(e.title == '当前申请'){
+      status = 0;
+      // console.log('新的status',status);
+     }else if(e.title == '历史申请'){
+      status = 1 + '&' + 2 ;
+      // console.log('新的status',status)
+     }else if(e.title){
+       status = 1 + '&' + 2;
+      //  console.log('新的status',status)
+     }
+     let meal_type = '全部';
+     let page = 1;
+     let size = 10;
+     request({
+       url:'/api/v1/official/list',
+       method:'GET',
+       data:{
+        department,
+        username,
+        time_begin:time_begin.format('YYYY-MM-DD'),
+        time_end:time_end.format('YYYY-MM-DD'),
+        status,
+        meal_type,
+        page,
+        size
+       },
+       beforeSend: (xml) => {
+         xml.setRequestHeader('token','7d377662cb83bcf56cd1ab775f8c0dba')
+        },
+        success: (res) => {
+          console.log('统一statu后的数据',res);
+        }
+     })
 
+
+  }
   render() {
-    // let {total} = store;
-    // const separator = (sectionID, rowID) => (
-    //   <div
-    //     key={`${sectionID}-${rowID}`}
-    //     style={{
-    //       backgroundColor: '#F5F5F9',
-    //       height: 8,
-    //       borderTop: '1px solid #ECECED',
-    //       borderBottom: '1px solid #ECECED',
-    //     }}
-    //   />
-    // );
-    // let index = data.length - 1;
-    // const row = (rowData, sectionID, rowID) => {
-    //   if (index < 0) {
-    //     index = data.length - 1;
-    //     return(
-    //       <div>暂无数据</div>
-    //     )
-    //   }
-    //   const obj = data[index--];
-    //   return (
-    //     <div key={rowID} style={{ padding: '0 15px' }}>
-    //       <div style={{ display: '-webkit-box', display: 'flex', padding: '15px 0' }}>
-    //         <div style={{ fontWeight: 'bold', fontSize:16 }}>
-    //           <span>{obj.create_time}  </span>
-    //           <span>{obj.username}  </span>
-    //           <span>{obj.department}  </span>
-    //           <span>{obj.role_name}  </span>
-    //           <span>{obj.access}  </span><br />
-    //           <span>{obj.deadline}  </span>
-    //           <span><a href="" onClick={(e) => e.preventDefault()}>{_status[obj.status]}</a>  </span>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   );
-    // };
-
     let mydata = store.data;
+    let {total} = store;
     if (mydata.length == 0) {
       return (
       <div>
@@ -203,27 +197,32 @@ class MyEntrance extends Component {
         </Fragment>
       </div>)
     }
+    //如果有问题就把上面的if都删了
     return (
       <Fragment>
         <div style={{ marginTop: 5 }}>
-          <Tabs tabs={tabs} initialPage={0} animated={false} useOnPan={false}>
+        {/* onTabClick={this.whichTab} */}
+          <Tabs tabs={tabs} initialPage={0} animated={false} useOnPan={false}  onChange={(tab, index) => { console.log('onChange', index, tab); }}>
             <div style={{ height: '100%', backgroundColor: '#fff' }}>
-              <List>
+            <List>
                {mydata.map(e => (
                 
                   <Item style={{fontWeight:'bold'}} key = {e.id}>
                   <Card>
                   <Card.Body>
                     <pre>
-                    <span>{e.create_time}</span>&nbsp;
                     <span>{e.username}</span>&nbsp;
+                    <span>{e.create_time}</span>&nbsp;
+                    <span>{e.phone}</span>&nbsp;
                     <span>{e.department}</span>&nbsp;
-                    <span>{e.role_name}</span>&nbsp;
-                    <span>{e.user_type}</span><br />
+                    <span>{e.product}</span><br />
 
-                    <span>{e.access}</span><br />
-                    <span>{e.deadline}</span><br />
+                    <span>{e.content}</span>&nbsp;
+                    <span>{e.meal_space}</span>&nbsp;
+                    <span>{e.member}</span>&nbsp;
+                    <span>{e.table_number}</span><br />
 
+                    <span>{e.meals.replace('A','\n')}</span><br />
                     <span style={{float:'right'}}><a href="" onClick={(e) => e.preventDefault()}>{_status[e.status]}</a></span><br />
                     </pre>
                   </Card.Body>
@@ -231,11 +230,12 @@ class MyEntrance extends Component {
                   </Item>
                 
                ))}
-              </List>
+            </List>
             </div>
             {/* <div style={{ height: '100%', backgroundColor: '#fff' }}>
-            第二个数据
-            </div> */}
+            第二个展示内容
+            </div>
+            <div>第三个内容</div> */}
           </Tabs>
         </div>
       </Fragment>
