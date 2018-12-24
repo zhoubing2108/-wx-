@@ -4,7 +4,7 @@ import store from './store';
 import request from '../../helpers/request';
 import style from './index.css'
 import { DatePicker, List , Picker, WhiteSpace, InputItem, Card, WingBlank, Radio, Flex, Button, TextareaItem} from 'antd-mobile';
-import moment from 'moment'
+import moment from 'moment';
 const products = [
   {
     label: '公务接待',
@@ -101,6 +101,28 @@ const meal_types = [
 
 @observer
 class Order extends React.Component {
+    componentDidMount(){
+      this.getUser();
+    }
+    getUser = () => {
+      let code = getQueryVarible('code');
+      request({
+        url:'/api/v1/token/user',
+        data:{
+          code
+        },
+        success:(res)=>{
+          sessionStorage.setItem('token',res.token);
+          sessionStorage.setItem('u_id',res.u_id);
+          sessionStorage.setItem('username',res.username);
+          sessionStorage.setItem('account',res.account);
+          sessionStorage.setItem('role',res.role);
+          }
+      })
+
+
+    };
+
     handleData =  (e) => {
         let {apply_date,time_begin,time_end,project,unit,leader,post,grade,departmental,section,under_section,male,female,meeting_place,meeting_date,meeting_count,hotel,accompany,meals} = store;
         departmental = departmental.toString();
@@ -135,7 +157,7 @@ class Order extends React.Component {
                 meals
             },
             beforeSend: (xml) => {
-                xml.setRequestHeader('token','15338500e8f604b2024aa28ccddc1d53')
+                xml.setRequestHeader('token',sessionStorage.getItem('token'))
 
             },
             success: (res) => {
@@ -308,7 +330,7 @@ class Order extends React.Component {
                 </List>
 
                 <WhiteSpace size="lg" />
-                <Button type="primary" onClick={this.handleData}>保存</Button>
+                <Button type="primary" onClick={this.handleData}>提交</Button>
                 <WhiteSpace size="lg" />
                 
             </List>

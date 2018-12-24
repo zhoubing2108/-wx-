@@ -91,7 +91,7 @@ class Order extends React.Component {
     let breakfast ='早餐,' + (premeals.meal_first.length == 0 ? '' : premeals.meal_first) ;
     let lunch ='A午餐,' + (premeals.meal_second.length == 0 ? '' : premeals.meal_second) ;
     let dinner ='A晚餐,' + (premeals.meal_third.length == 0 ? '' : premeals.meal_third) ;
-    let meals = breakfast + lunch + dinner + (premeals.meal_first.length==0?0:1)+(premeals.meal_second.length==0?0:1)+(premeals.meal_third==0?0:1);
+    let meals = breakfast + lunch + dinner + parseInt((premeals.meal_first.length==0?0:1)+(premeals.meal_second.length==0?0:1)+(premeals.meal_third==0?0:1));
     meal_space = meal_space.toString();
     product = product.toString();
     phone = phone.toString();
@@ -123,7 +123,7 @@ class Order extends React.Component {
       //   meals:'早餐,1111午餐,727272晚餐,3333'
       // },
       beforeSend:(xml) => {
-        xml.setRequestHeader('token','7d377662cb83bcf56cd1ab775f8c0dba')
+        xml.setRequestHeader('token','3653410c3846638b3641df2585ecd749')
       },
       success: (res) => {
         console.log(res);
@@ -239,7 +239,7 @@ class Order extends React.Component {
                   <WhiteSpace size="lg" />
                 </WingBlank>
                 <WhiteSpace size="lg" />
-                <Button type="primary" onClick={this.handleData}>保存</Button>
+                <Button style={{ position: 'fixed', width: '100%', bottom: 50 }} type="primary" onClick={this.handleData}>提交</Button>
                 <WhiteSpace size="lg" />
                 
             </List>

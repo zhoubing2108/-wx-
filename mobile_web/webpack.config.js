@@ -77,7 +77,7 @@ if (isDEV) {
       historyApiFallback: true,
       proxy: {
         '/api': {
-          target: 'http://maintain.mengant.cn',
+          target: 'http://ysxt.e-irobot.com:9995',
           changeOrigin: true
         }
       }

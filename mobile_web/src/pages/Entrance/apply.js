@@ -33,7 +33,7 @@ class Apply extends Component {
             人员类型：
                 </FlexItem>
           {user_type.map(i => (
-            <FlexItem>
+            <FlexItem key={i}>
               <Radio className='my-radio' key={i} checked={store.RadioValue === i} onChange={() => this.onRadioChange(i)} >
                 {i}
               </Radio>
@@ -118,7 +118,7 @@ class Apply extends Component {
         access
       },
       beforeSend: (xml) => {
-        xml.setRequestHeader('token','bf2719753b77e79b15da510b59a4f25c')
+        xml.setRequestHeader('token','6fd5ad9d1304deb856ecac94df1849a7')
       },
       success: (res)=>{
         console.log(res);

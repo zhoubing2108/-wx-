@@ -4,7 +4,10 @@ import { ListView, Pagination, Tabs, Card, List } from 'antd-mobile';
 import store from './store';
 import request from '../../helpers/request';
 import {observer} from 'mobx-react';
+import st from './entrance.css';
+import getQueryVarible from '../../helpers/get-query-variable';
 const Item = List.Item;
+
 
 
 const tabs = [
@@ -91,31 +94,64 @@ class MyEntrance extends Component {
     //     isLoading: false,
     //   });
     // }, 600);
-    this.fetchList();
+
+    // if(!sessionStorage.getItem('token')){
+    //   this.getUser();
+
+    // }
+    this.getUser();
+    // this.fetchList();
+    
+
   }
 
-  fetchList = (page, size = 10) => {
+  
+  getUser = () => {
+    // let code = getQueryVarible('code');
+    let code = '5Vmnwe1CoxxuqLqhJdsRt27-Zfi6xd-bPz_eIq-rZGo';
+    request({
+      url:'/api/v1/token/user',
+      data:{
+        code
+      },
+      method:'GET',
+      success:(res)=>{
+        sessionStorage.setItem('token',res.token);
+        sessionStorage.setItem('u_id',res.u_id);
+        sessionStorage.setItem('username',res.username);
+        sessionStorage.setItem('account',res.account);
+        sessionStorage.setItem('role',res.role);
+        this.fetchList(1);
+        this.fetchListLeft();
+        }
+    })
+  }
+
+  test = ()=>{
+    console.log(sessionStorage);
+    this.fetchList(1);
+  }
+  fetchList = (page) => {
     let { time_begin, time_end, status, username, access, department } = store.listParams;
     console.log(time_begin, time_end);
-    page = page?page:1
+    page = page?page:1;
+    let u_id = sessionStorage.getItem('u_id');
     request({
       // url: '/api/v1/meeting/place/list',
-      url: '/api/v1/access/list',
+      url: '/api/v1/flow/complete',
       method: 'GET',
       data: {
-        time_begin:time_begin.format('YYYY-MM-DD'),
-        time_end: time_end.format('YYYY-MM-DD'),
-        status,
-        username,
-        access,
-        department,
-        page: page ,
-        size
-      },   
+        page:page,
+        size:10,
+        wf_type:'access_control_t'
+
+      },
+        
       beforeSend: (xml) => {
-        xml.setRequestHeader('token', 'bf2719753b77e79b15da510b59a4f25c')
+        xml.setRequestHeader('token', sessionStorage.getItem('token'))
       },
       success: (res) => {
+        console.log('右边',res);
         data = res.data;
         store.data = res.data;
         store.total = res.total
@@ -123,62 +159,39 @@ class MyEntrance extends Component {
     })
 
   }
+  fetchListLeft = () => {
+    let { time_begin, time_end, status, username, access, department } = store.listParams;
+    console.log(time_begin, time_end);
+    let u_id = sessionStorage.getItem('u_id');
+    request({
+      url: '/api/v1/flow/ready',
+      method: 'GET',
+      data: {
+        wf_type:'access_control_t'
+      },
+        
+      beforeSend: (xml) => {
+        xml.setRequestHeader('token', sessionStorage.getItem('token'))
+      },
+      success: (res) => {
+        console.log('左边',res); 
+        data = res.data;
+        store.dataleft = res.data;
+        store.totalleft = res.total
+      }
+    })
 
-  onEndReached = (event) => {
-    // if (this.state.isLoading && !this.state.hasMore) {
-    //   return;
-    // }
-    // console.log('reach end', event);
-    // this.setState({ isLoading: true });
-    // setTimeout(() => {
-    //   this.rData = { ...this.rData, ...genData(++pageIndex) };
-    //   this.setState({
-    //     dataSource: this.state.dataSource.cloneWithRows(this.rData),
-    //     isLoading: false,
-    //   });
-    // }, 1000);
   }
 
-  render() {
-    // let {total} = store;
-    // const separator = (sectionID, rowID) => (
-    //   <div
-    //     key={`${sectionID}-${rowID}`}
-    //     style={{
-    //       backgroundColor: '#F5F5F9',
-    //       height: 8,
-    //       borderTop: '1px solid #ECECED',
-    //       borderBottom: '1px solid #ECECED',
-    //     }}
-    //   />
-    // );
-    // let index = data.length - 1;
-    // const row = (rowData, sectionID, rowID) => {
-    //   if (index < 0) {
-    //     index = data.length - 1;
-    //     return(
-    //       <div>暂无数据</div>
-    //     )
-    //   }
-    //   const obj = data[index--];
-    //   return (
-    //     <div key={rowID} style={{ padding: '0 15px' }}>
-    //       <div style={{ display: '-webkit-box', display: 'flex', padding: '15px 0' }}>
-    //         <div style={{ fontWeight: 'bold', fontSize:16 }}>
-    //           <span>{obj.create_time}  </span>
-    //           <span>{obj.username}  </span>
-    //           <span>{obj.department}  </span>
-    //           <span>{obj.role_name}  </span>
-    //           <span>{obj.access}  </span><br />
-    //           <span>{obj.deadline}  </span>
-    //           <span><a href="" onClick={(e) => e.preventDefault()}>{_status[obj.status]}</a>  </span>
-    //         </div>
-    //       </div>
-    //     </div>
-    //   );
-    // };
+  
 
+  render() {
+    
+    console.log(sessionStorage)
     let mydata = store.data;
+    let mydataleft = store.dataleft;
+    console.log(mydata);
+    console.log('mydataleft',mydataleft);
     if (mydata.length == 0) {
       return (
       <div>
@@ -204,27 +217,36 @@ class MyEntrance extends Component {
       </div>)
     }
     return (
+
       <Fragment>
         <div style={{ marginTop: 5 }}>
           <Tabs tabs={tabs} initialPage={0} animated={false} useOnPan={false}>
             <div style={{ height: '100%', backgroundColor: '#fff' }}>
               <List>
-               {mydata.map(e => (
+               {mydataleft.map(e => (
                 
                   <Item style={{fontWeight:'bold'}} key = {e.id}>
                   <Card>
                   <Card.Body>
                     <pre>
-                    <span>{e.create_time}</span>&nbsp;
-                    <span>{e.username}</span>&nbsp;
-                    <span>{e.department}</span>&nbsp;
-                    <span>{e.role_name}</span>&nbsp;
-                    <span>{e.user_type}</span><br />
+                    <span>{e.flow.create_time}</span>&nbsp;
+                    <span className={st.content}>{e.flow.members}</span>
+                    <span>{e.flow.access}</span>&nbsp;
+                    <span>{e.flow.deadline}</span>&nbsp;
+                    <span>{e.flow.user_type}</span><br />
 
-                    <span>{e.access}</span><br />
-                    <span>{e.deadline}</span><br />
+                    <span>{e.deadline}  <button onClick={this.test}>test</button>  </span>
 
                     <span style={{float:'right'}}><a href="" onClick={(e) => e.preventDefault()}>{_status[e.status]}</a></span><br />
+                    <span>{e.process[0].admin.username+':'+ "申请"}</span>&nbsp;&nbsp;
+
+                    {e.process.map(i =>(
+                        <span key={i.id}>                 
+                        <span>{i.admin.username+':'+i.btn}<br /></span>
+                        </span> ))}
+                    {/* <span>{e.process[1].admin.username+':'+e.process[1].btn}</span><br />
+                    <span>{e.process[2].admin.username+':'+e.process[2].btn}</span> */}
+                    {/* <span>{e.process[3].admin.username+':'+e.process[3].btn}</span> */}
                     </pre>
                   </Card.Body>
                   </Card>
@@ -233,9 +255,44 @@ class MyEntrance extends Component {
                ))}
               </List>
             </div>
-            {/* <div style={{ height: '100%', backgroundColor: '#fff' }}>
-            第二个数据
-            </div> */}
+            <div style={{ height: '100%', backgroundColor: '#fff'}}>
+              <List>
+               {mydata.map(e => (
+                
+                  <Item style={{fontWeight:'bold'}} key = {e.id}>
+                  <Card>
+                  <Card.Body>
+                    <pre style={{}}>
+                    <span>{e.flow.create_time}</span>&nbsp;
+                    <span className={st.content}>{e.flow.members}</span>
+                    <span>{e.flow.access}</span>&nbsp;
+                    <span>{e.flow.deadline}</span>&nbsp;
+                    <span>{e.flow.user_type}</span><br />
+
+                    {/* <span className={st.content}>{e.access}</span> */}
+                    {/* 在<pre>标签下实现文本自动换行 */}
+
+                    <span>{e.deadline}  <button onClick={this.test}>test</button>  </span>
+
+                    <span style={{float:'right'}}><a href="" onClick={(e) => e.preventDefault()}>{_status[e.status]}</a></span><br />
+                    <span>{e.process[0].admin.username+':'+ "申请"}</span>&nbsp;&nbsp;
+
+                    {e.process.map(i =>(
+                        <span key={i.id}>                 
+                        <span>{i.admin.username+':'+i.btn}<br /></span>
+                        </span> ))}
+                    {/* <span>{e.process[1].admin.username+':'+e.process[1].btn}</span><br />
+                    <span>{e.process[2].admin.username+':'+e.process[2].btn}</span> */}
+                    {/* <span>{e.process[3].admin.username+':'+e.process[3].btn}</span> */}
+                    </pre>
+                  </Card.Body>
+                  </Card>
+                  </Item>
+                
+               ))}
+              </List>
+            </div>
+            
           </Tabs>
         </div>
       </Fragment>

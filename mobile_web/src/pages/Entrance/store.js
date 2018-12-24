@@ -3,6 +3,7 @@ import moment from 'moment';
 
 class Store {
   @observable data = [];
+  @observable dataleft = [];
   @observable RadioValue = 0;
   @observable deadline = new Date(Date.now());
   @observable listParams = {
@@ -14,6 +15,7 @@ class Store {
     status: 3,
   }
   @observable total = 5;
+  @observable totalleft = 5;
 }
 
 export default new Store();

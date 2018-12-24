@@ -4,6 +4,7 @@ import { List, Pagination, Tabs, Card,ListView } from 'antd-mobile';
 import store from './store';
 import request from '../../helpers/request';
 import {observer} from 'mobx-react';
+import getQueryVarible from '../../helpers/get-query-variable';
 const Item = List.Item;
 
 // const tabs = [
@@ -92,7 +93,27 @@ function genData(pIndex = 0) {
 @observer
 class MyMeeting extends Component {
   componentDidMount() {
-    this.fetchList(1);
+    this.getUser();
+    // this.fetchList(1);
+  }
+  getUser = () => {
+    let code = getQueryVarible('code');
+    request({
+      url:'/api/v1/token/user',
+      data:{
+        code
+      },
+      method:'GET',
+      success:(res)=>{
+        sessionStorage.setItem('token',res.token);
+        sessionStorage.setItem('u_id',res.u_id);
+        sessionStorage.setItem('account',res.token);
+        sessionStorage.setItem('role',res.u_id);
+        sessionStorage.setItem('username',res.token);
+        this.fetchList();
+        }
+    })
+
   }
 
   fetchList = (page, size = 10) => {
@@ -100,10 +121,12 @@ class MyMeeting extends Component {
     page = page?page:1;
     // status = 0;默认为3，取出全部
     let meal_type = '全部';
+    let u_id = sessionStorage.getItem('u_id')
     request({
       url: '/api/v1/meeting/recept/list',
       method: 'GET',
       data: {
+        u_id,
         time_begin:time_begin.format('YYYY-MM-DD'),
         time_end: time_end.format('YYYY-MM-DD'),
         status,
@@ -114,7 +137,7 @@ class MyMeeting extends Component {
         meal_type
       },
       beforeSend: (xml) => {
-        xml.setRequestHeader('token', 'c28f86d731797d0d77e13e78e3fd6cbc')
+        xml.setRequestHeader('token', sessionStorage.getItem('token'))
       },
       success: (res) => {
         console.log('会议的列表数据',res);
@@ -213,7 +236,7 @@ class MyMeeting extends Component {
 
                   <span>{e.project}</span><br />
 
-                  <span>{e.meals.replace('A','\n')}</span><br />
+                  <span>{e.meals.replace('A','\n')}</span>
                   <span style={{float:'right'}}><a href="" onClick={(e) => e.preventDefault()}>{_status[e.status]}</a></span><br />
                   </pre>
                 </Card.Body>

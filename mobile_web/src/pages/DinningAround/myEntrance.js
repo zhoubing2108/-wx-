@@ -4,6 +4,7 @@ import { ListView, Pagination, Tabs, Card, List } from 'antd-mobile';
 import store from './store';
 import request from '../../helpers/request';
 import {observer} from 'mobx-react';
+import getQueryVarible from '../../helpers/get-query-variable';
 const Item = List.Item;
 
 // const tabs = [
@@ -12,7 +13,8 @@ const Item = List.Item;
 //   { title: '审核记录'}
 // ];
 const tabs = [
-  {title:'所有列表'}
+  {title:'当前列表'},
+  {title: '审核记录'}
 ]
 const _status = {
   '-1': '不通过',
@@ -78,30 +80,66 @@ function genData(pIndex = 0) {
 @observer
 class MyEntrance extends Component {
   componentDidMount() {
-    this.fetchList();
+    // if(!sessionStorage.getItem('token')){
+    //   this.getUser();
+
+    // }
+    this.getUser();
+    // console.log('getQueryVarible',getQueryVarible);
+    // let u_id = getQueryVarible('code');
+    // sessionStorage.setItem('u_id',u_id);
+    // this.fetchList();
+    
   }
-  fetchList = (page, size = 10) => {
+  getUser = () => {
+    // let code = getQueryVarible('code');
+    let code = 'OWxzHwwZzqK2682-K9BQlZZUKMvXc97FCeYiFCfU42U';
+    request({
+      url:'/api/v1/token/user',
+      data:{
+        code
+      },
+      method:'GET',
+      success:(res)=>{
+        sessionStorage.setItem('token',res.token);
+        sessionStorage.setItem('u_id',res.u_id);
+        sessionStorage.setItem('username',res.username);
+        sessionStorage.setItem('account',res.account);
+        sessionStorage.setItem('role',res.role);
+        this.fetchList(1);
+        }
+    })
+  }
+  fetchList = (page) => {
     let { time_begin, time_end, status, username, department } = store.listParams;
     console.log(time_begin, time_end);
     page = page?page:1;
     status = 0;
     let meal_type = '全部';
+    let u_id = sessionStorage.getItem('u_id');
     request({
-      url: '/api/v1/official/list',
+      // url: '/api/v1/official/list',
+      url:'/api/v1/flow/complete',
       method: 'GET',
-      data: {
-        time_begin:time_begin.format('YYYY-MM-DD'),
-        time_end: time_end.format('YYYY-MM-DD'),
-        status,
-        username,
-        department,
-        page: page ,
-        size,
-        meal_type
+      data:{
+        size:10,
+        page:page,
+        wf_type:'meeting_recept_t'
 
       },
+      // data: {
+      //   u_id,
+      //   time_begin:time_begin.format('YYYY-MM-DD'),
+      //   time_end: time_end.format('YYYY-MM-DD'),
+      //   status,
+      //   username,
+      //   department,
+      //   page: page ,
+      //   size: 10,
+      //   meal_type
+      // },
       beforeSend: (xml) => {
-        xml.setRequestHeader('token', '7d377662cb83bcf56cd1ab775f8c0dba')
+        xml.setRequestHeader('token','3653410c3846638b3641df2585ecd749')
       },
       success: (res) => {
         console.log('响应的数据',res);
@@ -168,9 +206,9 @@ class MyEntrance extends Component {
         }
      })
 
-
   }
   render() {
+    console.log(sessionStorage);
     let mydata = store.data;
     let {total} = store;
     if (mydata.length == 0) {
@@ -222,7 +260,8 @@ class MyEntrance extends Component {
                     <span>{e.member}</span>&nbsp;
                     <span>{e.table_number}</span><br />
 
-                    <span>{e.meals.replace('A','\n')}</span><br />
+                    <span>{e.meals.replace('A','\n')}</span>
+                    {/* 将A换回换行符,需要<pre>标签配合 */}
                     <span style={{float:'right'}}><a href="" onClick={(e) => e.preventDefault()}>{_status[e.status]}</a></span><br />
                     </pre>
                   </Card.Body>
