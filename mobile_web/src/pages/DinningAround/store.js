@@ -5,6 +5,7 @@ const nowTimeStamp = Date.now();
 const now = new Date(nowTimeStamp);
 class Store{
     @observable data = [];
+    @observable dataleft = [];
     @observable phone = '';
     @observable password='qsss';
     @observable meal_date = now;

@@ -6,6 +6,7 @@ const now = new Date(nowTimeStamp);
 
 class Store{
     @observable data = [];
+    @observable dataleft = [];
     @observable apply_date = now;
     @observable time_begin = now;
     @observable time_end = now;
@@ -17,14 +18,21 @@ class Store{
     @observable departmental = [''];
     @observable section = [''];
     @observable under_section = ['3'];
-    @observable male = [''];
-    @observable female = [''];
+    
+    @observable info = {};
+    @observable check_con = '';
     @observable meeting_place = '';
     @observable meeting_date = '';
     @observable meeting_count = [''];
-    @observable hotel = '';
+    @observable accompany_count = [''];
+
     @observable accompany = '';
-    @observable meals = ''
+
+    @observable letter_size = '';
+    @observable letter_title = '';
+    @observable users = '';
+    @observable detail = '';
+
 
     @observable deadline = new Date(Date.now());
     @observable listParams = {
@@ -35,5 +43,17 @@ class Store{
         department: '全部',
         status: 3,
     }
+
+
+    @observable RadioValue = 0;
+    @observable deadline = new Date(Date.now());
+    @observable userList = [];
+    
+    @observable total = 5;
+    @observable needTotal = 5;
+    @observable dataSource = []
+    @observable needList = [];
+    @observable current = 1;
+    @observable needCurrent = 1;
 }
 export default new Store();

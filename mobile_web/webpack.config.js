@@ -72,7 +72,7 @@ if (isDEV) {
   },
     config.devServer = {
       hot: true,
-      port: 8000,
+      port: 7005,
       contentBase: path.join(__dirname, "/"),
       historyApiFallback: true,
       proxy: {

@@ -93,7 +93,7 @@ class MyEntrance extends Component {
   }
   getUser = () => {
     // let code = getQueryVarible('code');
-    let code = 'OWxzHwwZzqK2682-K9BQlZZUKMvXc97FCeYiFCfU42U';
+    let code = 'syg3cldMabUE8_Yhcy_FagAju6mvBfzhlh7rqA0frQY';
     request({
       url:'/api/v1/token/user',
       data:{
@@ -107,6 +107,7 @@ class MyEntrance extends Component {
         sessionStorage.setItem('account',res.account);
         sessionStorage.setItem('role',res.role);
         this.fetchList(1);
+        this.fetchListLeft();
         }
     })
   }
@@ -146,6 +147,26 @@ class MyEntrance extends Component {
         data = res.data;
         store.data = res.data;
         store.total = res.total
+      }
+    })
+
+  }
+  fetchListLeft = () => {
+    request({
+      // url: '/api/v1/official/list',
+      url:'/api/v1/flow/complete',//我的列表
+      method: 'GET',
+      data:{
+        wf_type:'meeting_recept_t'
+      },
+      beforeSend: (xml) => {
+        xml.setRequestHeader('token','3653410c3846638b3641df2585ecd749')
+      },
+      success: (res) => {
+        console.log('响应的数据',res);
+        // data = res.data;
+        store.dataleft = res.data;
+        // store.total = res.total
       }
     })
 
@@ -208,14 +229,15 @@ class MyEntrance extends Component {
 
   }
   render() {
-    console.log(sessionStorage);
+    console.log('sessionStorage',sessionStorage);
     let mydata = store.data;
+    let mydataleft  =store.dataleft;
     let {total} = store;
     if (mydata.length == 0) {
       return (
       <div>
         <Fragment>
-          <div style={{ marginTop: 5 }}>
+            <div style={{ marginTop: '50px' }}>
             <Tabs tabs={tabs} initialPage={0} animated={false} useOnPan={false}  onChange={(tab, index) => { console.log('onChange', index, tab); }}>
               <div style={{ height: '100%', backgroundColor: '#fff' }}>
               <List>
@@ -238,7 +260,7 @@ class MyEntrance extends Component {
     //如果有问题就把上面的if都删了
     return (
       <Fragment>
-        <div style={{ marginTop: 5 }}>
+        <div style={{ marginTop: '50px' }}>
         {/* onTabClick={this.whichTab} */}
           <Tabs tabs={tabs} initialPage={0} animated={false} useOnPan={false}  onChange={(tab, index) => { console.log('onChange', index, tab); }}>
             <div style={{ height: '100%', backgroundColor: '#fff' }}>
@@ -254,12 +276,10 @@ class MyEntrance extends Component {
                     <span>{e.phone}</span>&nbsp;
                     <span>{e.department}</span>&nbsp;
                     <span>{e.product}</span><br />
-
                     <span>{e.content}</span>&nbsp;
                     <span>{e.meal_space}</span>&nbsp;
                     <span>{e.member}</span>&nbsp;
                     <span>{e.table_number}</span><br />
-
                     <span>{e.meals.replace('A','\n')}</span>
                     {/* 将A换回换行符,需要<pre>标签配合 */}
                     <span style={{float:'right'}}><a href="" onClick={(e) => e.preventDefault()}>{_status[e.status]}</a></span><br />

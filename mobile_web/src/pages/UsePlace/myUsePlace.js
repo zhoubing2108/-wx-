@@ -13,8 +13,8 @@ const Item = List.Item;
 //     { title: '审批记录' },
 //   ];
 const tabs = [
-    { title: '申请列表' },
-    { title: '审批记录' },
+    { title: '待办列表' },
+    { title: '历史记录' },
   ];
   const _status = {
     '-1': '不通过',
@@ -77,13 +77,12 @@ class MyUsePlace extends Component{
     
     
       componentDidMount() {
-        this.getUser();
-        
+      
       }
     
       getUser = () => {
         // let code = getQueryVarible('code');
-        let code = 'MPjYm5yWeH2YFgWX4XA6QajgQnx_NIbGetw0oVvFeRc';
+        let code = '4ib8hTQemMQdDcOaMAn2vn4iGE6oQTkGKDavzXu9GM8';
         request({
           url:'/api/v1/token/user',
           method:'GET',
@@ -96,7 +95,8 @@ class MyUsePlace extends Component{
             sessionStorage.setItem('username',res.username);
             sessionStorage.setItem('account',res.account);
             sessionStorage.setItem('role',res.role);
-            this.fetchList(1);
+            this.fetchList();
+            // this.fetchListLeft(1);
             }
         })
       }
@@ -104,8 +104,31 @@ class MyUsePlace extends Component{
       fetchList = (page) => {
         let { time_begin, time_end, status, username, access, department } = store.listParams;
         console.log(time_begin, time_end);
-        page = page?page:1;
+        // page = page?page:1;
         let u_id = sessionStorage.getItem('u_id');
+        request({
+          url: '/api/v1/flow/ready',
+          method: 'GET',
+            data:{
+                wf_type:'space_recreational_t',
+                // page: page,
+                // size: 10
+            },
+          beforeSend: (xml) => {
+            xml.setRequestHeader('token', sessionStorage.getItem('token'))
+          },
+          success: (res) => {
+            console.log(res);
+            // data = res;
+            store.data = res;
+            // store.total = res.total
+          }
+        })
+    
+      }
+      fetchListLeft= (page) => {
+        page = page?page:1;
+
         request({
           url: '/api/v1/flow/complete',
           method: 'GET',
@@ -118,18 +141,21 @@ class MyUsePlace extends Component{
             xml.setRequestHeader('token', sessionStorage.getItem('token'))
           },
           success: (res) => {
-            data = res.data;
-            store.data = res.data;
-            store.total = res.total
+            console.log('左边的数据',res);
+            // data = res;
+            store.dataleft = res;
+            // store.total = res.total
           }
         })
-    
+
       }
+      
     
     
       render() {
         
         let mydata = store.data;
+        let mydataleft = store.dataleft.data;
         if (mydata.length == 0) {
           return (
           <div>
@@ -158,6 +184,33 @@ class MyUsePlace extends Component{
           <Fragment>
             <div style={{ marginTop: 5 }}>
               <Tabs tabs={tabs} initialPage={0} animated={false} useOnPan={false}>
+                <div style={{ height: '100%', backgroundColor: '#fff' }}>
+                    <List>
+                    {mydataleft.map(e => (
+                      
+                        <Item style={{fontWeight:'bold'}} key = {e.id}>
+                        <Card>
+                        <Card.Body>
+                          <pre style={{}}>
+                          <span>{e.flow.space}</span>&nbsp;
+                          <span>{e.flow.time_begin}</span>&nbsp;
+                          <span>{e.flow.time_end}</span><br />
+                          <span>{e.flow.unit}</span>&nbsp;
+      
+                          <span>{e.flow.user_count}</span>
+                          {/* 在<pre>标签下实现文本自动换行 */}
+      
+                          {/* <span>{e.deadline}</span> */}
+      
+                          <span style={{float:'right'}}><a href="" onClick={(e) => e.preventDefault()}>{_status[e.status]}</a></span><br />
+                          </pre>
+                        </Card.Body>
+                        </Card>
+                        </Item>
+                      
+                    ))}
+                    </List>
+                </div>
                 <div style={{ height: '100%', backgroundColor: '#fff'}}>
                   <List>
                    {mydata.map(e => (
@@ -166,16 +219,15 @@ class MyUsePlace extends Component{
                       <Card>
                       <Card.Body>
                         <pre style={{}}>
-                        <span>{e.create_time}</span>&nbsp;
-                        <span>{e.username}</span>&nbsp;
-                        <span>{e.department}</span>&nbsp;
-                        <span>{e.role_name}</span>&nbsp;
-                        <span>{e.user_type}</span><br />
+                        <span>{e.flow.space}</span>&nbsp;
+                        <span>{e.flow.time_begin}</span>&nbsp;
+                        <span>{e.flow.time_end}</span><br />
+                        <span>{e.flow.unit}</span>&nbsp;
     
-                        <span className={st.content}>{e.access}</span>
+                        <span>{e.flow.user_count}</span>
                         {/* 在<pre>标签下实现文本自动换行 */}
     
-                        <span>{e.deadline}</span>
+                        {/* <span>{e.deadline}</span> */}
     
                         <span style={{float:'right'}}><a href="" onClick={(e) => e.preventDefault()}>{_status[e.status]}</a></span><br />
                         </pre>
@@ -186,12 +238,12 @@ class MyUsePlace extends Component{
                    ))}
                   </List>
                 </div>
-                <div style={{ height: '100%', backgroundColor: '#fff' }}>
+                {/* <div style={{ height: '100%', backgroundColor: '#fff' }}>
                 第二个数据
                 </div>
                 <div style={{ height: '100%', backgroundColor: '#fff'}}>
                 展示第三个数据
-                </div>
+                </div> */}
               </Tabs>
             </div>
           </Fragment>
